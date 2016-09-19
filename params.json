@@ -1,0 +1,6 @@
+{
+  "name": "OCR",
+  "tagline": "Nextcloud OCR processing for images and PDF with tesseract-ocr, OCRmyPDF and Gearman for asynchronous purpose.",
+  "body": "### OCR\r\nNextcloud OCR processing for images and PDF with tesseract-ocr, OCRmyPDF and Gearman for asynchronous purpose.",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
