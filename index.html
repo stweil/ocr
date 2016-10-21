@@ -12,32 +12,81 @@
   <body>
     <section class="page-header">
       <h1 class="project-name">OCR</h1>
-      <h2 class="project-tagline">Nextcloud OCR processing for images and PDF with tesseract-ocr, OCRmyPDF and Gearman for asynchronous purpose.</h2>
+      <h2 class="project-tagline">Nextcloud OCR processing for images and PDF with tesseract-ocr, OCRmyPDF and messaging system for asynchronous purpose.</h2>
       <a href="https://github.com/janis91/ocr" class="btn">View on GitHub</a>
       <a href="https://github.com/janis91/ocr/zipball/master" class="btn">Download .zip</a>
       <a href="https://github.com/janis91/ocr/tarball/master" class="btn">Download .tar.gz</a>
     </section>
 
     <section class="main-content">
-      <h3>
-<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h3>
+      <h1>
+<a id="configuration-and-usage" class="anchor" href="#configuration-and-usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configuration and usage</h1>
 
-<p>Install the app from the <a href="https://apps.nextcloud.com">Nextcloud Appstore</a> or download the git <a href="https://github.com/janis91/ocr/releases">release</a> and place the content in owncloud/apps/ or nextcloud/apps/.</p>
+<h2>
+<a id="general" class="anchor" href="#general" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>General</h2>
+
+<p>The workflow of this app is like the following:
+The nextcloud ocr app is installed within nextcloud via the app installation page. After the installation it will integrate in the files app: In the Nextcloud file list the OCR action is registered as a fileaction like the delete or download action. It will only show, if a file is selected that is compatible to ocr.</p>
+
+<p><em>Please consider, that sometimes after uploading the site has to be refreshed before processing of the newly uploaded files will work (Exception: "Wrong path parameter.").</em></p>
+
+<p>One can click on the ocr action button and a overlay option menu will appear (if everything is installed correctly. e.g. tesseract languages). It will give the option to select a language. Tesseract will process the file with the chosen language after one clicked "process".</p>
+
+<p><strong>Depending on the filesize, especially when processing a pdf, the ocr process is a long running process (tested with 120KB -&gt; 10s). It is absolutely recommended to do nothing with the files which are processed in nextcloud until processing finishes.</strong></p>
+
+<h2>
+<a id="detailed-workflow" class="anchor" href="#detailed-workflow" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Detailed workflow</h2>
+
+<p>In detail (see picture below) the app will send a message via the message queueing capabilities of php in the background and adds it to a message queue (also called 'message channel'). Nothing else. The ocr processing will not be triggered as long as there is no OCRWorker up and running (For details see usage chapter). You can run as much OCRWorkers as you want to (it will give you parallelism capability in order to process big load faster). The worker waits for messages by the nextcloud ocr app on the message queue. The worker will start the ocr process for a specific file (information given by the message of the nextcloud ocr app). The worker will call ocrmypdf or tesseract, inform nextcloud via occ command that the ocr result is available and after finishing it will wait for the next message in order to do the same again.</p>
+
+<p><img src="http://www.enterpriseintegrationpatterns.com/img/MessageChannelSolution.gif" alt="Message Queue"></p>
+
+<p>The app constantly checks for the status of the process and will notify the user on the nextcloud once the process finished.</p>
+
+<h2>
+<a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configuration</h2>
 
 <h3>
-<a id="basic-usage" class="anchor" href="#basic-usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Basic usage</h3>
+<a id="manual-command--cronjob" class="anchor" href="#manual-command--cronjob" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Manual Command / Cronjob</h3>
 
-<p>Just click on the menu for a specific file (image or pdf), which you want to be processed or select multiple files (images and/or pdfs) and click on OCR. A little submenu shows up and you have to select a language for the ocr processing engine, then click "Process" and wait until the processing finishes. You will be informed about the status on the top of the screen (notification bar). The Process will create new files called "_OCR.txt" or "_OCR.pdf" appended to the original name. </p>
+<p>After you have installed all dependencies and the app itself, you will have to get the OCRWorker running in a seperate process (beside your server / nginx / apache). The worker is located in the <em>worker</em> directory of the ocr app directory (<em>server/apps/ocr/worker</em>). The user of the webserver (which is running nextcliud) has to start the file <em>OCRWorker.php</em> with the <em>php</em> command like follows:</p>
+
+<p><code>php OCRWorker.php</code></p>
+
+<p><strong>Please make sure, that you start this command with the user of your webserver (the one that runs nextcloud).</strong></p>
+
+<p><em>Also have in mind that you could use something like a cronjob for reinitialization after restart and <code>nohup</code> for executing still after you leave the shell or logout. Example:</em></p>
+
+<p><code>sudo -u www-data nohup php /var/www/nextcloud/apps/ocr/worker/OCRWorker.php &gt;/dev/null 2&gt;&amp;1 &amp;</code></p>
 
 <h3>
-<a id="screenshots-and-example-usage" class="anchor" href="#screenshots-and-example-usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Screenshots and example usage</h3>
+<a id="usage-with-supervisor" class="anchor" href="#usage-with-supervisor" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage with Supervisor</h3>
 
-<p>The OCR app gives you much more possibilities for your personal organization.
-<img src="https://raw.githubusercontent.com/janis91/ocr/master/screenshots/sc1.png" alt="Screenshot">
-<em>With OCR you will be able to process all your images and pdf files in order to get the characters in it optically recognized and transformed to a txt file or another pdf which has now a text layer, allowing it to be searched.</em>
-<img src="https://raw.githubusercontent.com/janis91/ocr/master/screenshots/sc2.png" alt="Screenshot">
-<img src="https://raw.githubusercontent.com/janis91/ocr/master/screenshots/sc3.png" alt="Screenshot">
-<em>The great benefit of OCR: It is processing absolutely asynchronous in the background.</em></p>
+<p>This is an example of a Supervisor configuration. Add it to your Supervisor configuration file (E.G. <code>/etc/supervisord.conf</code>).</p>
+
+<pre><code>    [program:myworker]
+    command=php /path/to/server/apps/OCRWorker.php start --daemon=false
+    numprocs=12
+    autostart=true
+    autorestart=true
+</code></pre>
+
+<p><strong>Gearman is not longer supported and used</strong></p>
+
+<h2>
+<a id="screenshots-and-example-usage" class="anchor" href="#screenshots-and-example-usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Screenshots and example usage</h2>
+
+<p>The OCR app gives you much more possibilities for your personal organization.</p>
+
+<p><img src="https://raw.githubusercontent.com/janis91/ocr/master/screenshots/sc1.png" alt="Screenshot"></p>
+
+<p><em>With OCR you will be able to process all your images and pdf files in order to get the characters in it optically recognized and transformed to a txt file or another pdf which has now a text layer, allowing it to be searched.</em></p>
+
+<p><img src="https://raw.githubusercontent.com/janis91/ocr/master/screenshots/sc2.png" alt="Screenshot"></p>
+
+<p><img src="https://raw.githubusercontent.com/janis91/ocr/master/screenshots/sc3.png" alt="Screenshot"></p>
+
+<p><em>The great benefit of OCR: It is processing absolutely asynchronous in the background.</em></p>
 
 <h3>
 <a id="have-fun-with-ocr" class="anchor" href="#have-fun-with-ocr" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Have fun with OCR</h3>
