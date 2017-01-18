@@ -49,6 +49,8 @@ The nextcloud ocr app is installed within nextcloud via the app installation pag
 <h3>
 <a id="manual-command--cronjob" class="anchor" href="#manual-command--cronjob" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Manual Command / Cronjob</h3>
 
+      <p><strong>Please consider: The app will not work as long as the OCRWorker isn't running. (more information in the <a href="https://github.com/janis91/ocr/wiki">wiki</a>)</strong></p>
+      
 <p>After you have installed all dependencies and the app itself, you will have to get the OCRWorker running in a seperate process (beside your server / nginx / apache). The worker is located in the <em>worker</em> directory of the ocr app directory (<em>server/apps/ocr/worker</em>). The user of the webserver (which is running nextcliud) has to start the file <em>OCRWorker.php</em> with the <em>php</em> command like follows:</p>
 
 <p><code>php OCRWorker.php</code></p>
