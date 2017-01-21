@@ -15,7 +15,7 @@
       <h2 class="project-tagline">Nextcloud OCR processing for images and PDF with tesseract-ocr, OCRmyPDF and messaging system for asynchronous purpose.</h2>
       <a href="https://github.com/janis91/ocr" class="btn">View on GitHub</a>
       <a href="https://apps.nextcloud.com/apps/ocr" class="btn">View on appstore</a>
-      <a href="installation.html" class="btn">Installation</a>
+      <a href="installation.html" class="btn">Administration</a>
     </section>
 
     <section class="main-content">
@@ -57,7 +57,7 @@ The nextcloud ocr app is installed within nextcloud via the app installation pag
 
 <p><strong>Please make sure, that you start this command with the user of your webserver (the one that runs nextcloud).</strong></p>
 
-<p><em>Also have in mind that you could use something like a cronjob for reinitialization after restart and <code>nohup</code> for executing still after you leave the shell or logout. Example:</em></p>
+<p><em>Also remind that you could use something like a cronjob for reinitialization after restart and <code>nohup</code> for executing still after you leave the shell or logout. Example:</em></p>
 
 <p><code>sudo -u www-data nohup php /var/www/nextcloud/apps/ocr/worker/OCRWorker.php &gt;/dev/null 2&gt;&amp;1 &amp;</code></p>
 
