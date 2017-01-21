@@ -28,7 +28,7 @@
 <p>The workflow of this app is like the following:
 The nextcloud ocr app is installed within nextcloud via the app installation page. After the installation it will integrate in the files app: In the Nextcloud file list the OCR action is registered as a fileaction like the delete or download action. It will only show, if a file is selected that is compatible to ocr.</p>
 
-<p><em>Please consider, that sometimes after uploading the site has to be refreshed before processing of the newly uploaded files will work (Exception: "Wrong path parameter.").</em></p>
+<p><em>Please consider, that sometimes after uploading the site has to be refreshed before processing of the newly uploaded files will work (Exception: "Wrong parameter.").</em></p>
 
 <p>One can click on the ocr action button and a overlay option menu will appear (if everything is installed correctly. e.g. tesseract languages). It will give the option to select a language. Tesseract will process the file with the chosen language after one clicked "process".</p>
 
@@ -64,16 +64,18 @@ The nextcloud ocr app is installed within nextcloud via the app installation pag
 <h3>
 <a id="usage-with-supervisor" class="anchor" href="#usage-with-supervisor" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage with Supervisor</h3>
 
-<p>This is an example of a Supervisor configuration. Add it to your Supervisor configuration file (E.G. <code>/etc/supervisord.conf</code>).</p>
+<p>This is an example of a Supervisor configuration. Add it to your Supervisor configuration file (E.G. <code>/etc/supervisor/conf.d/ocrworker.conf</code>).</p>
 
-<pre><code>    [program:myworker]
-    command=php /path/to/server/apps/OCRWorker.php start --daemon=false
-    numprocs=12
-    autostart=true
-    autorestart=true
+<pre><code>    [program:ocrworker]
+  command=php **/path/to/server/**apps/ocr/worker/OCRWorker.php
+  numprocs=12
+  process_name=%(program_name)s_%(process_num)02d
+  user=www-data
+  autostart=true
+  autorestart=true
 </code></pre>
 
-<p><strong>Gearman is not longer supported and used</strong></p>
+<p><strong>Make sure, that your OCRWorker.php is executable (<code>chmod +x /path/to/server/apps/OCRWorker.php</code>).</strong></p>
 
 <h2>
 <a id="screenshots-and-example-usage" class="anchor" href="#screenshots-and-example-usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Screenshots and example usage</h2>
@@ -89,6 +91,10 @@ The nextcloud ocr app is installed within nextcloud via the app installation pag
 <p><img src="https://raw.githubusercontent.com/janis91/ocr/master/screenshots/sc3.png" alt="Screenshot"></p>
 
 <p><em>The great benefit of OCR: It is processing absolutely asynchronous in the background.</em></p>
+      
+<p><img src="https://raw.githubusercontent.com/janis91/ocr/master/screenshots/sc4.png" alt="Screenshot"></p>
+
+<p><em>Another really elpful feature: Every user has the possibility to manage his own pending and failed files in the personal settings section.</em></p>
 
 <h3>
 <a id="have-fun-with-ocr" class="anchor" href="#have-fun-with-ocr" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Have fun with OCR</h3>
